@@ -1,0 +1,30 @@
+package com.airline.model;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+
+@Entity
+@Table(name = "payments")
+public class Payment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotNull
+    private Long userId;
+
+    @NotNull
+    private Long flightId;
+
+    @NotNull
+    private Double amount;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date paymentDate = new Date();
+
+    // Getters and Setters
+}

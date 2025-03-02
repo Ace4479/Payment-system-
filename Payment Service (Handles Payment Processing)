@@ -1,0 +1,40 @@
+package com.airline.service;
+
+import com.airline.dto.PaymentRequest;
+import com.airline.model.Payment;
+import com.airline.model.PaymentStatus;
+import com.airline.repository.PaymentRepository;
+import com.airline.security.EncryptionUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+
+@Service
+public class PaymentService {
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Transactional
+    public Payment processPayment(PaymentRequest request, Long userId) {
+        try {
+            String encryptedCard = EncryptionUtil.encrypt(request.getCardNumber());
+
+            boolean paymentSuccess = simulatePaymentGateway(request.getAmount(), encryptedCard);
+
+            Payment payment = new Payment();
+            payment.setUserId(userId);
+            payment.setFlightId(request.getFlightId());
+            payment.setAmount(request.getAmount());
+            payment.setStatus(paymentSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED);
+            return paymentRepository.save(payment);
+        } catch (Exception e) {
+            throw new RuntimeException("Payment processing failed");
+        }
+    }
+
+    private boolean simulatePaymentGateway(double amount, String encryptedCard) {
+        return amount > 0;
+    }
+}

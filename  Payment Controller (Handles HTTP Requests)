@@ -1,0 +1,32 @@
+package com.airline.controller;
+
+import com.airline.dto.PaymentRequest;
+import com.airline.model.Payment;
+import com.airline.model.PaymentStatus;
+import com.airline.security.JwtUtil;
+import com.airline.service.PaymentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/payments")
+public class PaymentController {
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @PostMapping("/pay")
+    public ResponseEntity<?> makePayment(@RequestBody @Valid PaymentRequest request, @RequestHeader("Authorization") String token) {
+        String username = JwtUtil.extractUsername(token);
+        Long userId = 1L; // Replace with actual user ID retrieval
+
+        Payment payment = paymentService.processPayment(request, userId);
+        return payment.getStatus() == PaymentStatus.SUCCESS ?
+                ResponseEntity.ok("Payment successful!") :
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment failed.");
+    }
+}
